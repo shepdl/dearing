@@ -1,0 +1,2 @@
+from processors.process_document_step import ProcessDocumentStep
+from processors.update_dictionary_step import UpdateDictionaryStep
