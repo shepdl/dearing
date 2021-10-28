@@ -3,7 +3,7 @@ import unittest
 
 from processors import UpdateDictionaryStep
 from processors.update_dictionary_step import DictionaryUpdateRequest
-from tests.TestHelpers import TestHelpers
+from tests.helpers_for_tests import TestHelpers
 
 
 
@@ -14,7 +14,7 @@ class UpdatePhraseDictionaryTests(unittest.TestCase, TestHelpers):
     def test_initially_empty_phrase_dictionary_contains_all_phrases(self):
         initial = {}
         messages = [
-            DictionaryUpdateRequest(message, {}, 'test file') for message in [
+            DictionaryUpdateRequest(message, 'test file') for message in [
                 'to be or not to be that is the question'.split(' '),
                 'to eat or not to eat what a silly question'.split(' '),
             ]
@@ -77,7 +77,7 @@ class UpdatePhraseDictionaryTests(unittest.TestCase, TestHelpers):
             }
         }
         messages = [
-            DictionaryUpdateRequest(message, {}, 'new file') for message in [
+            DictionaryUpdateRequest(message, 'new file') for message in [
                 'to drink but not to drink what a hard question'.split(' '),
             ]
         ]

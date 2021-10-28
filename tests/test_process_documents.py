@@ -1,7 +1,7 @@
 import unittest
 
 from processors import ProcessDocumentStep
-from tests.TestHelpers import TestHelpers
+from tests.helpers_for_tests import TestHelpers
 
 
 class TestLongestOverlapReturnsExpectedResults(unittest.TestCase):

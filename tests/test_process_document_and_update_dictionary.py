@@ -1,18 +1,9 @@
-import sys
 import unittest
-import logging
 
 from processors import UpdateDictionaryStep
 from processors.process_document_step import ProcessDocumentConfig, ProcessDocumentStep
-from tests.TestHelpers import TestHelpers
+from tests.helpers_for_tests import TestHelpers
 
-LOGGER = logging.getLogger('dearing_single')
-LOGGER.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-LOGGER.addHandler(handler)
 
 class TestProcessDocumentStep(unittest.TestCase, TestHelpers):
 
@@ -55,13 +46,12 @@ class TestProcessDocumentStep(unittest.TestCase, TestHelpers):
         update_step = UpdateDictionaryStep(phrase_dictionary, updates, config.logger)
         update_step.execute()
         self.assertEqual({
-            'to': {'to be or not to be': {'hamlet'}, 'to _ or not to': {'hamlet', 'new file'}, 'to think or not to think': {'new file'}},
-            'be': {'to be or not to be': {'hamlet'},},
-            'think': {'to _ or not to': {'new file'}, 'to think or not to think': {'new file'}},
-            'or': {'to be or not to be': {'hamlet'}, 'to _ or not to': {'hamlet', 'new file'}, 'to think or not to think': {'new file'}},
-            'not': {'to be or not to be': {'hamlet'}, 'to _ or not to': {'new file'}, 'to think or not to think': {'new file'}},
+            'to': {'to _ or not to': {'hamlet', 'new file'}, 'to think or not to think': {'new file'}},
+            'be': {'to be or not to be': {'hamlet', 'new file'},},
+            'think': {'to think or not to think': {'new file'}},
+            'or': {'to _ or not to': {'hamlet', 'new file'}, 'to think or not to think': {'new file'}},
+            'not': {'to _ or not to': {'hamlet', 'new file'}, 'to think or not to think': {'new file'}},
         }, phrase_dictionary)
-        self.notImplemented()
 
     def test_find_partial_overlap_at_threshold(self):
         test_content = ['to think or not whatever']
@@ -74,31 +64,30 @@ class TestProcessDocumentStep(unittest.TestCase, TestHelpers):
         update_step = UpdateDictionaryStep(phrase_dictionary, updates, config.logger)
         update_step.execute()
         self.assertEqual({
-            'to': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
-            'be': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
-            'or': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
-            'not': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
+            'to': {'to think or not': {'new file'}, 'to _ or not': {'hamlet', 'new file'}},
+            'be': {'to be or not to be': {'hamlet', 'new file'}},
+            'or': {'to think or not': {'new file'}, 'to _ or not': {'hamlet', 'new file'}},
+            'not': {'to think or not': {'new file'}, 'to _ or not': {'hamlet', 'new file'}},
+            'think': {'to think or not': {'new file'}},
+            'whatever': {'to think or not whatever': {'new file'}}
         }, phrase_dictionary)
-
-        self.notImplemented()
 
     def test_skip_partial_overlap_below_threshold(self):
         test_content = ['to think or not whatever']
         test_file_name = 'new file'
         phrase_dictionary = self.PHRASE_DICTIONARY.copy()
-        config = ProcessDocumentConfig(5, self.PHRASE_THRESHOLD, LOGGER)
+        config = ProcessDocumentConfig(9, 5, LOGGER)
         instance = ProcessDocumentStep(phrase_dictionary, test_content, test_file_name, config)
         instance.execute()
         updates = instance.get_updates()
         update_step = UpdateDictionaryStep(phrase_dictionary, updates, config.logger)
         update_step.execute()
         self.assertEqual({
-            'to': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
-            'be': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
-            'or': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
-            'not': {'to be or not to be': {'hamlet'}, 'to _ or not to _': {'hamlet', 'new file'}},
+            'to': {'to be or not to be': {'hamlet'}},
+            'be': {'to be or not to be': {'hamlet'},},
+            'or': {'to be or not to be': {'hamlet'},},
+            'not': {'to be or not to be': {'hamlet'},},
         }, phrase_dictionary)
-        self.notImplemented()
 
     def test_add_no_overlap_to_dictionary(self):
         test_content = ['eh whatever who knows']

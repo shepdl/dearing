@@ -46,30 +46,29 @@ class ProcessDocumentStep:
                         phrase_tokens = phrase.split(' ')
                         matches = self.longest_overlap(sentence_tokens[sentence_index:], phrase_tokens)
                         if self.is_long_enough(matches, self._phrase_threshold):
-                            updates.append(DictionaryUpdateRequest(matches, self._phrases, self._in_file_name))
+                            updates.append(DictionaryUpdateRequest(matches, self._in_file_name))
                             longest_match = max(len(matches), longest_match)
-                            # TODO: update to include original sources of phrases
                             if None in matches:
                                 another_match = sentence_tokens[sentence_index:sentence_index + len(matches) + 1]
-                                updates.append(DictionaryUpdateRequest(another_match, self._phrases, self._in_file_name))
+                                updates.append(DictionaryUpdateRequest(another_match, self._in_file_name))
                     self._logger.info('Jumping ahead by %s', longest_match)
                     sentence_index += longest_match
                 else:
                     self._logger.info('Did not find match; adding "%s"', ' '.join(sentence_tokens))
-                    updates.append(DictionaryUpdateRequest(sentence_tokens, self._phrases, self._in_file_name))
+                    updates.append(DictionaryUpdateRequest(sentence_tokens, self._in_file_name))
                 sentence_index += 1
         self._updates.extend(updates)
 
     @staticmethod
-    def longest_overlap(sentence_tokens, phrase_tokens:typing.List[str], max_word_deviations_allowed=5):
+    def longest_overlap(sentence_tokens, phrase_tokens:typing.List[str], allowed_continuous_skips=5):
         sentence_tokens = [token for token in sentence_tokens if token]
-        word_deviations = max_word_deviations_allowed
+        word_deviations = allowed_continuous_skips
         phrase_index = 0
         token_sentence_index = 0
         matches = []
         while phrase_index < len(phrase_tokens) and token_sentence_index < len(sentence_tokens) and word_deviations > 0:
             if sentence_tokens[token_sentence_index] == phrase_tokens[phrase_index]:
-                word_deviations = max_word_deviations_allowed
+                word_deviations = allowed_continuous_skips
                 matches.append(phrase_tokens[phrase_index])
             else:
                 word_deviations -= 1
@@ -84,6 +83,9 @@ class ProcessDocumentStep:
             if matches[counter] is not None:
                 break
         matches = matches[0:counter + 1]
+        print(matches)
+        if matches == [None]:
+            matches = []
         return matches
 
     @staticmethod
