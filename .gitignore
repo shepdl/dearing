@@ -187,6 +187,7 @@ pip-selfcheck.json
 
 *env/
 
+input-data/
+output-data/
 
-*.txt
 *.json
